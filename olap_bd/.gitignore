@@ -1,0 +1,4 @@
+docs/
+.env*
+!.env.example
+.postgres_data/

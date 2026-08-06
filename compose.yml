@@ -1,0 +1,3 @@
+include:
+  - oltp_bd/compose.yml
+  - olap_bd/compose.yml

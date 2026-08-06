@@ -1,0 +1,10 @@
+{
+  "include": [
+    "."
+  ],
+  "extraPaths": [
+    "."
+  ],
+  "venvPath": "../../oltp_bd/api",
+  "venv": ".venv"
+}

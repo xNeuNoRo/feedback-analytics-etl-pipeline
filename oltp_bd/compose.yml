@@ -1,0 +1,48 @@
+services:
+  postgres_oltp:
+    image: postgres:18-alpine
+    container_name: oltp_bd
+    restart: unless-stopped # Reinicia el contenedor solo si se detiene por error, no manualmente.
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=oltp_dev
+    networks:
+      - bigdata_project_network
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./.postgres_data/main:/var/lib/postgresql/18/docker
+      - ./.postgres_data/dimensions:/mnt/tablespaces/dimensions
+      - ./.postgres_data/feedbacks:/mnt/tablespaces/feedbacks
+      - ./.postgres_data/indexes:/mnt/tablespaces/indexes
+      # Ojo, todos los scripts sql de inicializacion estan en esta misma ruta 
+      # (carpeta db_scripts) y solo se van a ejecutar 1 sola vez al crear el container
+      - ./db_scripts:/docker-entrypoint-initdb.d/
+    # Comando para crear los directorios de los tablespaces y darle permisos a postgres antes de iniciar
+    command: >
+      bash -c "mkdir -p /mnt/tablespaces/dimensions /mnt/tablespaces/feedbacks /mnt/tablespaces/indexes &&
+      chown -R postgres:postgres /mnt/tablespaces &&
+      docker-entrypoint.sh postgres"
+
+networks:
+  # Nombre de la red
+  bigdata_project_network:
+    name: bigdata_project_network
+    driver: bridge
+    driver_opts:
+      # Pa habilitar ipv6 en la red virtual de docker
+      com.docker.network.enable_ipv6: "true"
+    # IP Address Management (IPAM) pa configurar como docker le asignara las IPs a los futuros containers
+    # Por ahora solo para postgres
+    ipam:
+      driver: default
+      config:
+      -
+        subnet: "172.16.35.0/24"
+        gateway: "172.16.35.1"
+      -
+        subnet: "fd00:beef:face::/64"
+        gateway: "fd00:beef:face::1"
