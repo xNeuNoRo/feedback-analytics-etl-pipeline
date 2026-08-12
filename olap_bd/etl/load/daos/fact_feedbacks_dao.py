@@ -4,7 +4,12 @@ from sqlalchemy.orm import Session
 
 
 class FactFeedbacksDao:
-    """DAO para la inserción masiva en fact_feedbacks llamando al Stored Procedure sp_insert_fact_feedback de la BD OLAP."""
+    """DAO para la gestión e inserción masiva en fact_feedbacks llamando a los Stored Procedures de la BD OLAP."""
+
+    def clean_facts(self, session: Session) -> None:
+        """Invoca el Stored Procedure sp_clean_fact_feedbacks en la BD OLAP para truncar la tabla de hechos."""
+        stmt = text("CALL sp_clean_fact_feedbacks();")
+        session.execute(stmt)
 
     def insert_fact(
         self,

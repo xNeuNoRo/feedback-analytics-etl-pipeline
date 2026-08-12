@@ -2,6 +2,16 @@
 -- procedures sql --
 --------------------
 
+create procedure sp_clean_fact_feedbacks()
+    language plpgsql
+as
+$$
+begin
+    -- vaciamos la tabla fact_feedbacks reiniciando la secuencia de llaves primarias
+    truncate table fact_feedbacks restart identity;
+end;
+$$;
+
 create procedure sp_insert_fact_feedback(
     p_time_key int,
     p_client_key int,

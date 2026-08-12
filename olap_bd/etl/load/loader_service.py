@@ -35,15 +35,30 @@ class LoaderService:
         self._sentiment_dao = sentiment_dao
         self._fact_dao = fact_dao
 
-    def load(self, transformed_data: Dict[str, List[Dict[str, Any]]]) -> int:
+    def clean_fact_tables(self) -> None:
+        """Limpia/trunca las tablas de hechos en la BD OLAP antes de la carga."""
+        logger.info(
+            "[Pre-Load Cleanup]: Iniciando limpieza previa de tablas de hechos...")
+        with self._db_manager.get_session() as session:
+            self._fact_dao.clean_facts(session)
+            session.commit()
+        logger.info(
+            "[Pre-Load Cleanup]: Tablas de hechos truncadas y reiniciadas con éxito.")
+
+    def load(self, transformed_data: Dict[str, List[Dict[str, Any]]], clean_before_load: bool = True) -> int:
         """Carga las dimensiones y hechos en el Modelo en Estrella."""
         facts_list = transformed_data.get("fact_feedbacks", [])
-        logger.info(
-            "Iniciando carga de %d hechos en la BD OLAP...", len(facts_list))
 
         if not facts_list:
             return 0
-        
+
+        # Ejecutamos la limpieza previa de la tabla de hechos
+        if clean_before_load:
+            self.clean_fact_tables()
+
+        logger.info(
+            "Iniciando carga de %d hechos en la BD OLAP...", len(facts_list))
+
         inserted_count = 0
         try:
             with self._db_manager.get_session() as session:

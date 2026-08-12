@@ -1,3 +1,12 @@
+import sys
+from pathlib import Path
+from datetime import datetime
+from typing import List, Dict, Any
+
+etl_dir = str(Path(__file__).resolve().parents[1])
+if etl_dir not in sys.path:
+    sys.path.insert(0, etl_dir)
+
 from core.application import OlapEtlApplication
 from load.loader_service import LoaderService
 from data.transformers.strategies.fact_feedbacks_transformer import FactFeedbacksTransformer
@@ -8,19 +17,6 @@ from data.transformers.strategies.dim_client_transformer import DimClientTransfo
 from data.transformers.strategies.dim_time_transformer import DimTimeTransformer
 from data.transformers.helpers.nlp_sentiment_analyzer import NlpSentimentAnalyzer
 from data.extractors.interfaces.i_extractor import IExtractor
-import sys
-from datetime import datetime
-from typing import List, Dict, Any
-
-from pathlib import Path
-
-etl_dir = str(Path(__file__).resolve().parents[1])
-if etl_dir not in sys.path:
-    sys.path.insert(0, etl_dir)
-
-parent_root = str(Path(__file__).resolve().parents[4])
-if parent_root not in sys.path:
-    sys.path.insert(0, parent_root)
 
 
 def test_nlp_sentiment_analyzer():
